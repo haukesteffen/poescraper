@@ -18,6 +18,7 @@ var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
 func main() {
 	var change_id string
 	var size float64
+	snooze := 0.5
 	totalSize := 0.0
 	if len(os.Args) > 1 {
 		change_id = os.Args[1]
@@ -33,7 +34,7 @@ func main() {
 		change_id, size = fetchapi(client, change_id)
 		totalSize += size
 		fmt.Printf("Total download size start: %.2f MB\n", totalSize)
-		time.Sleep(time.Duration(5) * time.Second)
+		time.Sleep(time.Duration(snooze) * time.Second)
 	}
 	//fmt.Println("Response Info:")
 	//fmt.Println("  Error      :", err)
@@ -63,12 +64,20 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 		return dump.NextChangeID, float64(resp.Size()) / (1 << 20)
 	} else if resp.StatusCode() == 429 {
 		fmt.Println("Too many requests. Sleeping 60s")
+		fmt.Println(resp.StatusCode())
+		fmt.Println(resp)
+
+		os.Exit(1)
+
 		time.Sleep(time.Duration(60) * time.Second)
 		return change_id, 0
 	} else {
 		fmt.Println("Other Error")
 		fmt.Println(resp.StatusCode())
 		fmt.Println(resp)
+
+		os.Exit(1)
+
 		return change_id, 0
 	}
 }
