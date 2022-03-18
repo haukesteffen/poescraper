@@ -17,10 +17,12 @@ var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
 
 func main() {
 	var change_id string
+	var size float64
+	totalSize := 0.0
 	if len(os.Args) > 1 {
 		change_id = os.Args[1]
 	} else {
-		change_id = "1472289994-1475770471-1427149043-1588198401-1534034954"
+		change_id = "1472339778-1475818681-1427199351-1588249104-1534088717"
 	}
 	if os.Getenv("POEEMAIL") == "" {
 		fmt.Println("No Email (env: POEEMAIL) set.")
@@ -28,7 +30,9 @@ func main() {
 	}
 	client := resty.New()
 	for {
-		change_id = fetchapi(client, change_id)
+		change_id, size = fetchapi(client, change_id)
+		totalSize += size
+		fmt.Printf("Total download size start: %.2f MB\n", totalSize)
 		time.Sleep(time.Duration(5) * time.Second)
 	}
 	//fmt.Println("Response Info:")
@@ -43,7 +47,7 @@ func main() {
 
 }
 
-func fetchapi(client *resty.Client, change_id string) string {
+func fetchapi(client *resty.Client, change_id string) (string, float64) {
 	//var dump api.Poe
 	var dump Tmp
 	resp, err := client.R().
@@ -56,15 +60,15 @@ func fetchapi(client *resty.Client, change_id string) string {
 	if resp.StatusCode() == 200 {
 		//fmt.Println("Time:", resp.Time())
 		fmt.Println("Next change ID:", dump.NextChangeID)
-		return dump.NextChangeID
+		return dump.NextChangeID, float64(resp.Size()) / (1 << 20)
 	} else if resp.StatusCode() == 429 {
 		fmt.Println("Too many requests. Sleeping 60s")
 		time.Sleep(time.Duration(60) * time.Second)
-		return change_id
+		return change_id, 0
 	} else {
 		fmt.Println("Other Error")
 		fmt.Println(resp.StatusCode())
 		fmt.Println(resp)
-		return change_id
+		return change_id, 0
 	}
 }
