@@ -18,3 +18,4 @@ poescraper
 # env files
 .env-postgres
 .env-docker
+.env
