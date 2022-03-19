@@ -22,12 +22,15 @@ type PoeItem struct {
 	StackSize    int    `json:"stackSize"`
 	MaxStackSize int    `json:"maxStackSize"`
 	League       string `json:"league"`
+	Fractured    bool   `json:"fractured"`
 	ID           string `json:"id"`
+	Synthesised  bool   `json:"synthesised"`
 	Name         string `json:"name"`
 	TypeLine     string `json:"typeLine"`
 	BaseType     string `json:"baseType"`
 	Identified   bool   `json:"identified"`
 	Ilvl         int    `json:"ilvl"`
+	Corrupted    bool   `json:"corrupted"`
 	Note         string `json:"note"`
 	Properties   []struct {
 		Name        string          `json:"name"`
@@ -35,12 +38,13 @@ type PoeItem struct {
 		DisplayMode int             `json:"displayMode"`
 		Type        int             `json:"type"`
 	} `json:"properties"`
-	ImplicitMods []string `json:"inplicitMods"`
-	ExplicitMods []string `json:"explicitMods"`
-	FlavourText  []string `json:"flavourText"`
-	FrameType    int      `json:"frameType"`
-	ArtFilename  string   `json:"artFilename"`
-	Extended     struct {
+	ImplicitMods  []string `json:"implicitMods"`
+	ExplicitMods  []string `json:"explicitMods"`
+	FracturedMods []string `json:"fracturedMods"`
+	FlavourText   []string `json:"flavourText"`
+	FrameType     int      `json:"frameType"`
+	ArtFilename   string   `json:"artFilename"`
+	Extended      struct {
 		Category      string   `json:"category"`
 		Subcategories []string `json:"subcategories"`
 	} `json:"extended"`
