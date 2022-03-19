@@ -33,6 +33,12 @@ type Tmp struct {
 	NextChangeID string `json:"next_change_id"`
 }
 
+var rarity = map[int]string{
+	0: "Normal",
+	1: "Magic",
+	2: "Rare",
+}
+
 var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
 
 func main() {
@@ -53,7 +59,7 @@ func main() {
 	for {
 		change_id, size = fetchapi(client, change_id)
 		totalSize += size
-		fmt.Printf("Total download size start: %.2f MB\n", totalSize)
+		//fmt.Printf("Total download size start: %.2f MB\n", totalSize)
 		time.Sleep(time.Duration(snooze) * time.Second)
 	}
 	//fmt.Println("Response Info:")
@@ -113,11 +119,11 @@ func stashParser(stashes api.Poe) {
 					subcat = item.Extended.Subcategories
 					if len(subcat) > 0 && subcat[0] == "ring" {
 						//fmt.Printf("%+v", item)
-						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, item.FrameType, item.Ilvl)
+						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
 						for _, aff := range item.ExplicitMods {
 							fmt.Println(aff)
 						}
-						fmt.Printf("Price: %v", item.Note)
+						fmt.Printf("Price: %v\n", item.Note)
 						fmt.Println()
 					}
 				}
