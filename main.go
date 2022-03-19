@@ -1,12 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/haukesteffen/poescraper/api"
+	"github.com/lib/pq"
 )
 
 /*
@@ -27,6 +29,16 @@ frameType:
 
 print struct with keys:
 	fmt.Printf("%+v\n", item)
+ id            | integer
+ basetype      | text
+ rarity        | smallint
+ ilvl          | smallint
+ implicit      | text[]
+ explicit      | text[]
+ corrupted     | boolean
+ fracturedmods | text[]
+ price         | text
+ itemid	       | text
 */
 
 type Tmp struct {
@@ -39,39 +51,27 @@ var rarity = map[int]string{
 	2: "Rare",
 }
 
+var db *sql.DB
+
 var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
 
-func main() {
-	var change_id string
-	var size float64
-	snooze := 0.5
-	totalSize := 0.0
-	if len(os.Args) > 1 {
-		change_id = os.Args[1]
-	} else {
-		change_id = "1472339778-1475818681-1427199351-1588249104-1534088717"
+func initDB() {
+	var err error
+	connStr := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		os.Getenv("DBHOST"), os.Getenv("DBPORT"), os.Getenv("DBUSER"), os.Getenv("DBPASSWORD"), os.Getenv("DBDBNAME"))
+	db, err = sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
 	}
-	if os.Getenv("POEEMAIL") == "" {
-		fmt.Println("No Email (env: POEEMAIL) set.")
-		os.Exit(1)
-	}
-	client := resty.New()
-	for {
-		change_id, size = fetchapi(client, change_id)
-		totalSize += size
-		//fmt.Printf("Total download size start: %.2f MB\n", totalSize)
-		time.Sleep(time.Duration(snooze) * time.Second)
-	}
-	//fmt.Println("Response Info:")
-	//fmt.Println("  Error      :", err)
-	//fmt.Println("  Status Code:", resp.StatusCode())
-	//fmt.Println("  Status     :", resp.Status())
-	//fmt.Println("  Proto      :", resp.Proto())
-	//fmt.Println("  Time       :", resp.Time())
-	//fmt.Println("  Received At:", resp.ReceivedAt())
-	//fmt.Println("  Body       :\n", resp)
-	//fmt.Println()
+}
 
+func itemToDB(item api.PoeItem) {
+	insertDynStmt := `INSERT INTO "items"("basetype", "rarity", "ilvl", "implicit", "explicit", "corrupted", "fracturedmods", "price", "itemid") values($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+	_, err := db.Exec(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods), item.Note, item.ID)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func fetchapi(client *resty.Client, change_id string) (string, float64) {
@@ -118,11 +118,17 @@ func stashParser(stashes api.Poe) {
 				if item.FrameType > 0 && item.FrameType < 3 && item.Identified && item.Note != "" {
 					subcat = item.Extended.Subcategories
 					if len(subcat) > 0 && subcat[0] == "ring" {
+						go itemToDB(item)
 						//fmt.Printf("%+v", item)
 						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
+						for _, imp := range item.ImplicitMods {
+							fmt.Println(imp)
+						}
+						fmt.Println("-----------------")
 						for _, aff := range item.ExplicitMods {
 							fmt.Println(aff)
 						}
+						fmt.Println("-----------------")
 						fmt.Printf("Price: %v\n", item.Note)
 						fmt.Println()
 					}
@@ -130,4 +136,42 @@ func stashParser(stashes api.Poe) {
 			}
 		}
 	}
+}
+
+func main() {
+	var change_id string
+	var size float64
+	snooze := 0.5
+	totalSize := 0.0
+	if len(os.Args) > 1 {
+		change_id = os.Args[1]
+	} else {
+		change_id = "1473725886-1477176845-1428551417-1589673745-1535500894"
+	}
+	if os.Getenv("POEEMAIL") == "" {
+		fmt.Println("No Email (env: POEEMAIL) set.")
+		os.Exit(1)
+	}
+	if os.Getenv("DBHOST") == "" {
+		fmt.Println("No DB vars")
+		os.Exit(1)
+	}
+	initDB()
+	client := resty.New()
+	for {
+		change_id, size = fetchapi(client, change_id)
+		totalSize += size
+		//fmt.Printf("Total download size start: %.2f MB\n", totalSize)
+		time.Sleep(time.Duration(snooze) * time.Second)
+	}
+	//fmt.Println("Response Info:")
+	//fmt.Println("  Error      :", err)
+	//fmt.Println("  Status Code:", resp.StatusCode())
+	//fmt.Println("  Status     :", resp.Status())
+	//fmt.Println("  Proto      :", resp.Proto())
+	//fmt.Println("  Time       :", resp.Time())
+	//fmt.Println("  Received At:", resp.ReceivedAt())
+	//fmt.Println("  Body       :\n", resp)
+	//fmt.Println()
+
 }
