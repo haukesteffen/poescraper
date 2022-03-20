@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
 	"os"
@@ -139,14 +140,33 @@ func stashParser(stashes api.Poe) {
 }
 
 func main() {
+	var file *os.File
 	var change_id string
 	var size float64
+	var err error
+	last_change_id_file := "./last_change_id"
 	snooze := 0.5
 	totalSize := 0.0
+	// todo
+	if os.Getenv("TODB") != "" {
+		todb = false
+	}
+
+	file, err = os.OpenFile(last_change_id_file, os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		panic(err)
+	}
+	scanner := bufio.NewScanner(file)
+	scanner.Scan()
+	change_id = scanner.Text()
+	if err = scanner.Err(); err != nil {
+		panic(err)
+	}
+	if change_id == "" {
+		change_id = "1474588903-1478046118-1429398778-1590571140-1536383722"
+	}
 	if len(os.Args) > 1 {
 		change_id = os.Args[1]
-	} else {
-		change_id = "1473725886-1477176845-1428551417-1589673745-1535500894"
 	}
 	if os.Getenv("POEEMAIL") == "" {
 		fmt.Println("No Email (env: POEEMAIL) set.")
@@ -161,6 +181,11 @@ func main() {
 	for {
 		change_id, size = fetchapi(client, change_id)
 		totalSize += size
+		_, err := file.WriteAt([]byte(change_id), 0)
+		if err != nil {
+			panic(err)
+		}
+		file.Sync()
 		//fmt.Printf("Total download size start: %.2f MB\n", totalSize)
 		time.Sleep(time.Duration(snooze) * time.Second)
 	}
