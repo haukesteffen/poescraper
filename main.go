@@ -72,10 +72,11 @@ func initDB() {
 
 func itemToDB(item api.PoeItem) {
 	insertDynStmt := `INSERT INTO "items"("basetype", "rarity", "ilvl", "implicit", "explicit", "corrupted", "fracturedmods", "price", "itemid") values($1, $2, $3, $4, $5, $6, $7, $8, $9)`
-	_, err := db.Exec(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods), item.Note, item.ID)
+	rows, err := db.Query(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods), item.Note, item.ID)
 	if err != nil {
 		panic(err)
 	}
+	rows.Close()
 }
 
 func fetchapi(client *resty.Client, change_id string) (string, float64) {
