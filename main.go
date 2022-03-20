@@ -54,6 +54,9 @@ var rarity = map[int]string{
 
 var db *sql.DB
 
+// todo
+var todb bool = true
+
 var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
 
 func initDB() {
@@ -119,7 +122,9 @@ func stashParser(stashes api.Poe) {
 				if item.FrameType > 0 && item.FrameType < 3 && item.Identified && item.Note != "" {
 					subcat = item.Extended.Subcategories
 					if len(subcat) > 0 && subcat[0] == "ring" {
-						go itemToDB(item)
+						if todb {
+							go itemToDB(item)
+						}
 						//fmt.Printf("%+v", item)
 						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
 						for _, imp := range item.ImplicitMods {
@@ -178,6 +183,10 @@ func main() {
 	}
 	initDB()
 	client := resty.New()
+	fmt.Println("Starting at", change_id)
+	if !todb {
+		fmt.Println("Not writing to db")
+	}
 	for {
 		change_id, size = fetchapi(client, change_id)
 		totalSize += size
