@@ -119,7 +119,7 @@ func stashParser(stashes api.Poe) {
 		if v.League == "Hardcore Archnemesis" {
 			for _, item := range v.Items {
 				// look at normal, magic and rare items
-				if item.FrameType > 0 && item.FrameType < 3 && item.Identified && item.Note != "" {
+				if item.FrameType > 0 && item.FrameType < 3 && item.Identified {
 					subcat = item.Extended.Subcategories
 					if len(subcat) > 0 && subcat[0] == "ring" {
 						if todb {
