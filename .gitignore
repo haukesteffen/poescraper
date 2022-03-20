@@ -19,3 +19,4 @@ poescraper
 .env-postgres
 .env-docker
 .env
+.venv/
