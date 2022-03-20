@@ -149,7 +149,7 @@ func main() {
 	var change_id string
 	var size float64
 	var err error
-	last_change_id_file := "./last_change_id"
+	last_change_id_file := "/data/last_change_id"
 	snooze := 0.5
 	totalSize := 0.0
 	// todo
