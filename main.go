@@ -124,7 +124,7 @@ func stashParser(stashes api.Poe) {
 					subcat = item.Extended.Subcategories
 					if len(subcat) > 0 && subcat[0] == "ring" {
 						if todb {
-							go itemToDB(item)
+							itemToDB(item)
 						}
 						//fmt.Printf("%+v", item)
 						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
