@@ -12,6 +12,9 @@ import (
 	"github.com/lib/pq"
 )
 
+var GitCommit string = "undefined"
+var BuildTime string = "No Time provided"
+
 /*
 {"verified":false,"w":1,"h":1,"icon":"https:\/\/web.poecdn.com\/gen\/image\/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVGh1bmRlckxvb3AiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d\/1322cee671\/ThunderLoop.png","league":"Archnemesis",
 "id":"376f84ae8f7d47805e9e0bbb71ce8d94f25a032d67e2a0981d7f65a9882aecb8","name":"Storm Secret","typeLine":"Topaz Ring","baseType":"Topaz Ring","identified":true,"ilvl":76,"note":"~price 7 chaos","corrupted":true,
@@ -153,6 +156,7 @@ func main() {
 	last_change_id_file := "/data/last_change_id"
 	snooze := 0.5
 	totalSize := 0.0
+	fmt.Println(GitCommit, BuildTime)
 	// todo
 	if os.Getenv("TODB") != "" {
 		todb = false
