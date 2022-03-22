@@ -20,3 +20,6 @@ poescraper
 .env-docker
 .env
 .venv/
+
+# jupyter checkpoints
+.ipynb_checkpoints
