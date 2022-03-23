@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -62,6 +63,16 @@ var todb bool = true
 
 var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
 
+func dumpHeaders(resp *resty.Response) {
+	fmt.Println("---------------")
+	for name, values := range resp.Header() {
+		for _, value := range values {
+			fmt.Println(name, value)
+		}
+	}
+	fmt.Println("---------------")
+}
+
 func initDB() {
 	var err error
 	connStr := fmt.Sprintf("host=%s port=%s user=%s "+
@@ -96,23 +107,26 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 		//fmt.Println("Time:", resp.Time())
 		//fmt.Println("Next change ID:", dump.NextChangeID)
 		go stashParser(dump)
+		dumpHeaders(resp)
 		return dump.NextChangeID, float64(resp.Size()) / (1 << 20)
 	} else if resp.StatusCode() == 429 {
-		fmt.Println("Too many requests. Sleeping 60s")
-		fmt.Println(resp.StatusCode())
+		fmt.Println("Status Code:", resp.StatusCode())
+		dumpHeaders(resp)
 		fmt.Println(resp)
-
-		os.Exit(1)
-
-		time.Sleep(time.Duration(60) * time.Second)
+		header := resp.Header().Get("Retry-After")
+		waiting_seconds, err := strconv.Atoi(header)
+		if err != nil {
+			fmt.Println("Couldn't cast to int:", header)
+			fmt.Println("Sleeping 60s")
+			waiting_seconds = 60
+		}
+		time.Sleep(time.Duration(waiting_seconds) * time.Second)
 		return change_id, 0
 	} else {
-		fmt.Println("Other Error")
+		fmt.Println("Other Error. Sleeping 30s")
 		fmt.Println(resp.StatusCode())
 		fmt.Println(resp)
-
-		os.Exit(1)
-
+		time.Sleep(time.Duration(30) * time.Second)
 		return change_id, 0
 	}
 }
