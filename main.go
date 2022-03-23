@@ -130,17 +130,17 @@ func stashParser(stashes api.Poe) {
 							itemToDB(item)
 						}
 						//fmt.Printf("%+v", item)
-						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
-						for _, imp := range item.ImplicitMods {
-							fmt.Println(imp)
-						}
-						fmt.Println("-----------------")
-						for _, aff := range item.ExplicitMods {
-							fmt.Println(aff)
-						}
-						fmt.Println("-----------------")
-						fmt.Printf("Price: %v\n", item.Note)
-						fmt.Println()
+						//fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
+						//for _, imp := range item.ImplicitMods {
+						//	fmt.Println(imp)
+						//}
+						//fmt.Println("-----------------")
+						//for _, aff := range item.ExplicitMods {
+						//	fmt.Println(aff)
+						//}
+						//fmt.Println("-----------------")
+						//fmt.Printf("Price: %v\n", item.Note)
+						//fmt.Println()
 					}
 				}
 			}
