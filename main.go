@@ -107,7 +107,6 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 		//fmt.Println("Time:", resp.Time())
 		//fmt.Println("Next change ID:", dump.NextChangeID)
 		go stashParser(dump)
-		dumpHeaders(resp)
 		return dump.NextChangeID, float64(resp.Size()) / (1 << 20)
 	} else if resp.StatusCode() == 429 {
 		fmt.Println("Status Code:", resp.StatusCode())
