@@ -23,3 +23,6 @@ poescraper
 
 # jupyter checkpoints
 .ipynb_checkpoints
+
+# csv files
+'.csv
