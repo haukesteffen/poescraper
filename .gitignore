@@ -25,4 +25,4 @@ poescraper
 .ipynb_checkpoints
 
 # csv files
-'.csv
+*.csv
