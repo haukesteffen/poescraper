@@ -16,36 +16,6 @@ import (
 var GitCommit string = "undefined"
 var BuildTime string = "No Time provided"
 
-/*
-{"verified":false,"w":1,"h":1,"icon":"https:\/\/web.poecdn.com\/gen\/image\/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVGh1bmRlckxvb3AiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MX1d\/1322cee671\/ThunderLoop.png","league":"Archnemesis",
-"id":"376f84ae8f7d47805e9e0bbb71ce8d94f25a032d67e2a0981d7f65a9882aecb8","name":"Storm Secret","typeLine":"Topaz Ring","baseType":"Topaz Ring","identified":true,"ilvl":76,"note":"~price 7 chaos","corrupted":true,
-"properties":[{"name":"Quality (Attribute Modifiers)","values":[["+20%",1]],"displayMode":0,"type":6}],"requirements":[{"name":"Level","values":[["56",0]],"displayMode":0}],"implicitMods":["+30% to Lightning Resistance"],
-"explicitMods":["+27 to Intelligence","20% increased Lightning Damage","14% chance to Shock","Herald of Thunder also creates a storm when you Shock an Enemy","Herald of Thunder's Storms Hit Enemies with 37% increased Frequency",
-"Take 250 Lightning Damage when Herald of Thunder Hits an Enemy"],
-"flavourText":["Lightning lives in an endless circle."],"frameType":3,
-"extended":{"category":"accessories","subcategories":["ring"]},"x":12,"y":7,"inventoryId":"Stash4"},
-
-frameType:
-	0 normal
-	1 magic
-	2 rare
-	3 unique
-	4 gem
-
-print struct with keys:
-	fmt.Printf("%+v\n", item)
- id            | integer
- basetype      | text
- rarity        | smallint
- ilvl          | smallint
- implicit      | text[]
- explicit      | text[]
- corrupted     | boolean
- fracturedmods | text[]
- price         | text
- itemid	       | text
-*/
-
 type Tmp struct {
 	NextChangeID string `json:"next_change_id"`
 }
@@ -216,14 +186,4 @@ func main() {
 		//fmt.Printf("Total download size start: %.2f MB\n", totalSize)
 		time.Sleep(time.Duration(snooze) * time.Second)
 	}
-	//fmt.Println("Response Info:")
-	//fmt.Println("  Error      :", err)
-	//fmt.Println("  Status Code:", resp.StatusCode())
-	//fmt.Println("  Status     :", resp.Status())
-	//fmt.Println("  Proto      :", resp.Proto())
-	//fmt.Println("  Time       :", resp.Time())
-	//fmt.Println("  Received At:", resp.ReceivedAt())
-	//fmt.Println("  Body       :\n", resp)
-	//fmt.Println()
-
 }
