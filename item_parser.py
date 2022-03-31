@@ -92,3 +92,4 @@ output_df = pd.concat(df_item, axis=0).fillna(0.0)
 ###TODO
 #drop items priced at 0c or 0ex
 #load data in chunks to save memory
+#use regex for price filtering
