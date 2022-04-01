@@ -12,6 +12,8 @@ services:
 
   poescraper:
     image: jan104/poescraper
+    build:
+      context: .
     environment:
       DBDBNAME: poeitems
       DBHOST: postgres
