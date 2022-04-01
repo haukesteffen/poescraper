@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: poeitems
+    volumes:
+      - postgres:/data/postgres
+      - ./assets/poeitems.sql:/docker-entrypoint-initdb.d/poeitems.sql
+
+  poescraper:
+    image: jan104/poescraper
+    environment:
+      DBDBNAME: poeitems
+      DBHOST: postgres
+      DBPASSWORD: postgres
+      DBPORT: 5432
+      DBUSER: postgres
+      POEEMAIL: ${POEEMAIL-your@email.here}
+
+volumes:
+  postgres:
