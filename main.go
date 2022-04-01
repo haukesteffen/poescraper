@@ -167,11 +167,10 @@ func main() {
 		fmt.Println("No Email (env: POEEMAIL) set.")
 		os.Exit(1)
 	}
-	if os.Getenv("DBHOST") == "" {
-		fmt.Println("No DB vars")
-		os.Exit(1)
+	// todo better checks
+	if os.Getenv("DBHOST") != "" && todb {
+		initDB()
 	}
-	initDB()
 	client := resty.New()
 	fmt.Println("Starting at", change_id)
 	if !todb {
