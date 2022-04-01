@@ -138,7 +138,8 @@ func main() {
 	var change_id string
 	var size float64
 	var err error
-	last_change_id_file := "/data/last_change_id"
+	metadata_folder := "/data/"
+	last_change_id_file := metadata_folder + "last_change_id"
 	snooze := 0.5
 	totalSize := 0.0
 	fmt.Println(GitCommit, BuildTime)
@@ -146,10 +147,15 @@ func main() {
 	if os.Getenv("TODB") != "" {
 		todb = false
 	}
-
-	file, err = os.OpenFile(last_change_id_file, os.O_RDWR|os.O_CREATE, 0755)
+	//if _, err := os.Stat(metadata_folder); os.IsNotExist(err) {
+	//	os.Mkdir(metadata_folder, 0755)
+	//}
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	file, err = os.OpenFile(last_change_id_file, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
-		panic(err)
+		fmt.Println(last_change_id_file, "nicht gefunden und/oder konnte nicht erstellt werden.")
 	}
 	scanner := bufio.NewScanner(file)
 	scanner.Scan()
@@ -181,7 +187,8 @@ func main() {
 		totalSize += size
 		_, err := file.WriteAt([]byte(change_id), 0)
 		if err != nil {
-			panic(err)
+			fmt.Println("Could not write to file ", last_change_id_file)
+			//panic(err)
 		}
 		file.Sync()
 		//fmt.Printf("Total download size start: %.2f MB\n", totalSize)
