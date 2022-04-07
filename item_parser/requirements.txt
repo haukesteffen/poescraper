@@ -2,3 +2,4 @@ pandas
 numpy
 sqlalchemy
 joblib
+psycopg2
