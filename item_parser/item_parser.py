@@ -63,8 +63,8 @@ def main():
         with open('.env-postgres') as f:
             engine = create_engine('postgresql://' + f.readlines()[0] + '@localhost:5432/poeitems')
     except:
-        username = os.environ('DBUSERNAME')
-        password = os.environ('DBPASSWORD')
+        username = os.environ['DBUSERNAME']
+        password = os.environ['DBPASSWORD']
         engine = create_engine('postgresql://' + username + ':' + password + '@localhost:5432/poeitems')
     input_df = pd.read_sql_query('SELECT * FROM items ORDER BY RANDOM() LIMIT ' + str(n_items), con=engine)
 
