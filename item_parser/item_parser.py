@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 import os
+import time
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
 from joblib import Parallel, delayed
 
 n_jobs = os.cpu_count()
+n_items = 1000
 price_chaos_per_ex = 113.0
 
 def strip_digits(input_string):
@@ -53,43 +55,59 @@ def item_parser(input_item):
             item_dict[affix] = convert_rolls(value)
     return pd.DataFrame.from_dict(item_dict)
 
-#connect to database and query all items
-with open('.env-postgres') as f:
-    engine = create_engine('postgresql://' + f.readlines()[0] + '@localhost:5432/poeitems')
-input_df = pd.read_sql_query('select * from items',con=engine)
 
-#drop unidentified and unpriced items
-input_df.dropna(subset='explicit', axis='rows', inplace=True)
-subset_ex = input_df['price'].str.contains('exalted')
-subset_c = input_df['price'].str.contains('chaos')
-input_df = input_df[subset_c|subset_ex]
+def main():
+    global output_df
+    #connect to database and query all items
+    with open('.env-postgres') as f:
+        engine = create_engine('postgresql://' + f.readlines()[0] + '@localhost:5432/poeitems')
+    input_df = pd.read_sql_query('SELECT * FROM items ORDER BY RANDOM() LIMIT ' + str(n_items), con=engine)
 
-#remove unnecessary strings and drop items priced without number
-subset_ex = input_df['price'].str.contains('exalted')
-input_df['price'] = input_df['price'].str.replace(' exalted','')
-input_df['price'] = input_df['price'].str.replace('~price ','')
-input_df['price'] = input_df['price'].str.replace(' chaos','')
-input_df['price'] = input_df['price'].str.replace('~b/o ','')
-input_df['price'] = input_df['price'].replace('', np.nan)
-input_df['price'] = input_df['price'].dropna()
+    #drop unidentified and unpriced items
+    input_df.dropna(subset='explicit', axis='rows', inplace=True)
+    subset_ex = input_df['price'].str.contains('exalted')
+    subset_c = input_df['price'].str.contains('chaos')
+    input_df = input_df[subset_c|subset_ex]
 
-#convert to chaos and save as float
-input_df['price'] = input_df['price'].astype(float)
-input_df.loc[subset_ex, 'price'] = input_df.loc[subset_ex, 'price']*price_chaos_per_ex
-input_df = input_df[input_df['price'] > 0.1]
+    #remove unnecessary strings and drop items priced without number
+    subset_ex = input_df['price'].str.contains('exalted')
+    input_df['price'] = input_df['price'].str.replace(' exalted','')
+    input_df['price'] = input_df['price'].str.replace('~price ','')
+    input_df['price'] = input_df['price'].str.replace(' chaos','')
+    input_df['price'] = input_df['price'].str.replace('~b/o ','')
+    input_df['price'] = input_df['price'].replace('', np.nan)
+    input_df['price'] = input_df['price'].dropna()
 
-#create affix lexica
-implicit_lexicon = create_lexicon(input_df, 'implicit')
-explicit_lexicon = create_lexicon(input_df, 'explicit')
-fracturedmods_lexicon = create_lexicon(input_df, 'fracturedmods')
+    #convert to chaos and save as float
+    input_df['price'] = input_df['price'].astype(float)
+    input_df.loc[subset_ex, 'price'] = input_df.loc[subset_ex, 'price']*price_chaos_per_ex
+    input_df = input_df[input_df['price'] > 0.1]
 
-#merge info and affix lexica
-info_lexicon = ['itemid', 'price', 'basetype', 'ilvl', 'corrupted', 'timestamp']
-output_df = pd.DataFrame(columns=info_lexicon + explicit_lexicon + implicit_lexicon + fracturedmods_lexicon)
+    #create affix lexica
+    implicit_lexicon = create_lexicon(input_df, 'implicit')
+    explicit_lexicon = create_lexicon(input_df, 'explicit')
+    fracturedmods_lexicon = create_lexicon(input_df, 'fracturedmods')
 
-#parse input dataframe into output dataframe
-df_item = Parallel(n_jobs=n_jobs)(delayed(item_parser)(item) for _, item in input_df.iterrows())
-output_df = pd.concat(df_item, axis=0).fillna(0.0)
+    #merge info and affix lexica
+    info_lexicon = ['itemid', 'price', 'basetype', 'ilvl', 'corrupted', 'timestamp']
+    output_df = pd.DataFrame(columns=info_lexicon + explicit_lexicon + implicit_lexicon + fracturedmods_lexicon)
+
+    #parse input dataframe into output dataframe
+    df_item = Parallel(n_jobs=n_jobs)(delayed(item_parser)(item) for _, item in input_df.iterrows())
+    output_df = pd.concat(df_item, axis=0).fillna(0.0)
+
+    #save dataframe to csv file
+    output_df.to_csv('output.csv')
+    return
+
+
+if __name__ == "__main__":
+    i = 0
+    while True:
+        print('Iteration ' + str(i))
+        i += 1
+        main()
+        time.sleep(20)
 
 
 ###TODO
