@@ -65,7 +65,8 @@ def main():
     except:
         username = os.environ['DBUSER']
         password = os.environ['DBPASSWORD']
-        engine = create_engine('postgresql://' + username + ':' + password + '@DBHOST:5432/poeitems')
+        host = os.environ['DBHOST']
+        engine = create_engine('postgresql://' + username + ':' + password + '@' + host + ':5432/poeitems')
     input_df = pd.read_sql_query('SELECT * FROM items ORDER BY RANDOM() LIMIT ' + str(n_items), con=engine)
 
     #drop unidentified and unpriced items
