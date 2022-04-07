@@ -76,6 +76,7 @@ input_df['price'] = input_df['price'].dropna()
 #convert to chaos and save as float
 input_df['price'] = input_df['price'].astype(float)
 input_df.loc[subset_ex, 'price'] = input_df.loc[subset_ex, 'price']*price_chaos_per_ex
+input_df = input_df[input_df['price'] > 0.1]
 
 #create affix lexica
 implicit_lexicon = create_lexicon(input_df, 'implicit')
@@ -92,6 +93,5 @@ output_df = pd.concat(df_item, axis=0).fillna(0.0)
 
 
 ###TODO
-#drop items priced at 0c or 0ex
 #load data in chunks to save memory
 #use regex for price filtering
