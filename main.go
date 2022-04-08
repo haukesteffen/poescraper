@@ -75,12 +75,10 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 	}
 	respCode := resp.StatusCode()
 	if respCode == 200 {
-		//fmt.Println("Time:", resp.Time())
-		//fmt.Println("Next change ID:", dump.NextChangeID)
 		go stashParser(dump)
 		return dump.NextChangeID, float64(resp.Size()) / (1 << 20)
 	} else if respCode == 429 {
-		fmt.Println("Status Code:", respCode)
+		fmt.Println("Status Code:", respCode, "at", resp.Time())
 		dumpHeaders(resp)
 		fmt.Println(resp)
 		header := resp.Header().Get("Retry-After")
@@ -94,7 +92,7 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 		return change_id, 0
 	} else {
 		fmt.Println("Other Error. Sleeping 60s")
-		fmt.Println(resp.StatusCode())
+		fmt.Println(resp.StatusCode(), "at", resp.Time())
 		fmt.Println(resp)
 		time.Sleep(time.Duration(60) * time.Second)
 		return change_id, 0
