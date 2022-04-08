@@ -138,19 +138,13 @@ func main() {
 	var err error
 	metadata_folder := "/data/"
 	last_change_id_file := metadata_folder + "last_change_id"
-	snooze := 0.5
+	snooze := 3
 	totalSize := 0.0
 	fmt.Println(GitCommit, BuildTime)
 	// todo
 	if os.Getenv("TODB") != "" {
 		todb = false
 	}
-	//if _, err := os.Stat(metadata_folder); os.IsNotExist(err) {
-	//	os.Mkdir(metadata_folder, 0755)
-	//}
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
 	file, err = os.OpenFile(last_change_id_file, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		fmt.Println(last_change_id_file, "nicht gefunden und/oder konnte nicht erstellt werden.")
