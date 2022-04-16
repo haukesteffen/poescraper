@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
+from decimal import DecimalException
 import os
+from queue import LifoQueue
 import time
 import re
+from turtle import speed
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
@@ -146,3 +149,8 @@ if __name__ == "__main__":
 
 ###TODO
 # load data in chunks to save memory
+# create dataframe from dictionary like so:
+# explicit = [maximum life, fire res, attack speed], values = [50, 20, 10]
+# dict = {mods=explicit,
+#           values=values}
+# df = pd.DataFrame(dict)
