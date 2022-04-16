@@ -95,7 +95,7 @@ def main():
             + host.strip()
             + ":5432/poeitems"
         )
-    # input_df = pd.read_sql_query('SELECT * FROM items ORDER BY RANDOM() LIMIT ' + str(n_items), con=engine)
+
     print("fetching data...")
     input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
 
@@ -123,7 +123,7 @@ def main():
     )
 
     # parse input dataframe into output dataframe
-    print("parsing items into machine learnable form")
+    print("parsing items into machine learnable form...")
     df_item = Parallel(n_jobs=n_jobs)(
         delayed(item_parser)(item) for _, item in input_df.iterrows()
     )
