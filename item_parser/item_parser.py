@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
-from decimal import DecimalException
 import os
-from queue import LifoQueue
 import time
 import re
-from turtle import speed
 import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine
