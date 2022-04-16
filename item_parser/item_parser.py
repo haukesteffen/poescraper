@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 n_jobs = os.cpu_count()
 n_items = 1000
 price_chaos_per_ex = 113.0
-price_pattern = re.compile("^~(?:b/o|price)\s([\d\.]+)\s(exalted|chaos)")
+price_pattern = re.compile("^~(?:b/o|price)\s([\d\.]+)\s(exalted|chaos)$")
 
 
 def extract_price(price_string=None):
