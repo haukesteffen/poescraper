@@ -97,7 +97,8 @@ def main():
         )
 
     print("fetching data...")
-    input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
+    #input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
+    input_df = pd.read_sql_query("SELECT * FROM items", con=engine)
 
     # remove unnecessary strings and drop items priced without number
     print("formatting price data...")
@@ -136,12 +137,13 @@ def main():
 
 
 if __name__ == "__main__":
-    i = 0
+    '''i = 0
     while True:
         print("Iteration " + str(i))
         i += 1
         main()
-        time.sleep(60)
+        time.sleep(60)'''
+    main()
 
 
 ###TODO
