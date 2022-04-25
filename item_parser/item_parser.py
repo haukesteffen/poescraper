@@ -70,7 +70,8 @@ def item_parser(input_item):
             affix = strip_digits(mod) + " (" + affix_category + ")"
             value = strip_alpha(mod)
             item_dict[affix] = convert_rolls(value)
-    return pd.DataFrame.from_dict(item_dict)
+    return item_dict
+    #return pd.DataFrame.from_dict(item_dict)
 
 
 def main():
@@ -98,7 +99,7 @@ def main():
 
     print("fetching data...")
     #input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
-    input_df = pd.read_sql_query("SELECT * FROM items", con=engine)
+    input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
 
     # remove unnecessary strings and drop items priced without number
     print("formatting price data...")
@@ -116,15 +117,20 @@ def main():
     # merge info and affix lexica
     print("merging lexica...")
     info_lexicon = ["itemid", "price", "basetype", "ilvl", "corrupted", "timestamp"]
-    output_df = pd.DataFrame(
+    '''output_df = pd.DataFrame(
         columns=info_lexicon
         + explicit_lexicon
         + implicit_lexicon
         + fracturedmods_lexicon
-    )
-
+    )'''
+    lexica = [info_lexicon, implicit_lexicon, explicit_lexicon, fracturedmods_lexicon]
+    item_dict = {}
+    for lexicon in lexica:
+        for mod in lexicon:
+            item_dict[mod] = []
+    print(item_dict)
     # parse input dataframe into output dataframe
-    print("parsing items into machine learnable form...")
+    '''print("parsing items into machine learnable form...")
     df_item = Parallel(n_jobs=n_jobs)(
         delayed(item_parser)(item) for _, item in input_df.iterrows()
     )
@@ -132,7 +138,7 @@ def main():
 
     # save dataframe to csv file
     print("saving data to csv...")
-    output_df.to_csv("output.csv")
+    output_df.to_csv("output.csv")'''
     return
 
 
