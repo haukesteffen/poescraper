@@ -26,3 +26,6 @@ poescraper
 
 # csv files
 *.csv
+
+# output.pkl
+data/output.pkl

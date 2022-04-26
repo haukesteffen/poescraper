@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import time
 import re
 import pandas as pd
 import numpy as np
@@ -9,7 +8,6 @@ from sqlalchemy import create_engine
 from joblib import Parallel, delayed
 
 n_jobs = os.cpu_count()
-n_items = 1000
 price_chaos_per_ex = 113.0
 price_pattern = re.compile("^~(?:b/o|price)\s([\d\.]+)\s(exalted|chaos)$")
 
@@ -33,29 +31,14 @@ def strip_alpha(input_string):
 
 
 def convert_rolls(input_string):
-    return [np.mean([float(roll) for roll in str.split(input_string)])]
-
-
-def create_lexicon(df, subset=None):
-    if subset == None:
-        raise ValueError("Define a subset to create lexicon on.")
-    mod_dict = {"mod": [""]}
-    mods_df = pd.DataFrame.from_dict(mod_dict)
-    for _, item in df.iterrows():
-        if item[subset] is not None:
-            for mod in item[subset]:
-                mod_no_digits = strip_digits(mod)
-                if mod_no_digits not in mods_df.values:
-                    mods_df.loc[len(mods_df.index)] = mod_no_digits
-    mods_df["mod"].replace("", np.nan, inplace=True)
-    mods_df.dropna(inplace=True)
-    return [s + " (" + subset + ")" for s in mods_df["mod"].tolist()]
+    if not str.split(input_string):
+        return 1.0
+    else:
+        return [np.mean([float(roll) for roll in str.split(input_string)])]
+        
 
 
 def item_parser(input_item):
-    global output_df
-    if input_item.loc["itemid"] in output_df["itemid"]:
-        pass
     item_dict = {}
     item_dict["itemid"] = input_item.loc["itemid"]
     item_dict["price"] = input_item.loc["price"]
@@ -71,7 +54,6 @@ def item_parser(input_item):
             value = strip_alpha(mod)
             item_dict[affix] = convert_rolls(value)
     return item_dict
-    #return pd.DataFrame.from_dict(item_dict)
 
 
 def main():
@@ -98,64 +80,34 @@ def main():
         )
 
     print("fetching data...")
-    #input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
-    input_df = pd.read_sql_query("SELECT * FROM items LIMIT 1000", con=engine)
+    input_df = pd.read_sql_query("SELECT * FROM items", con=engine)
 
     # remove unnecessary strings and drop items priced without number
     print("formatting price data...")
     input_df["price"] = input_df["price"].apply(extract_price)
     input_df.dropna(subset=["price"], inplace=True)
 
-    # create affix lexica
-    print("creating implicit lexicon...")
-    implicit_lexicon = create_lexicon(input_df, "implicit")
-    print("creating explicit lexicon...")
-    explicit_lexicon = create_lexicon(input_df, "explicit")
-    print("creating fractured lexicon...")
-    fracturedmods_lexicon = create_lexicon(input_df, "fracturedmods")
-
-    # merge info and affix lexica
-    print("merging lexica...")
-    info_lexicon = ["itemid", "price", "basetype", "ilvl", "corrupted", "timestamp"]
-    '''output_df = pd.DataFrame(
-        columns=info_lexicon
-        + explicit_lexicon
-        + implicit_lexicon
-        + fracturedmods_lexicon
-    )'''
-    lexica = [info_lexicon, implicit_lexicon, explicit_lexicon, fracturedmods_lexicon]
-    item_dict = {}
-    for lexicon in lexica:
-        for mod in lexicon:
-            item_dict[mod] = []
-    print(item_dict)
     # parse input dataframe into output dataframe
-    '''print("parsing items into machine learnable form...")
-    df_item = Parallel(n_jobs=n_jobs)(
+    print("parsing items into machine learnable form...")
+    item_list = Parallel(n_jobs=n_jobs)(
         delayed(item_parser)(item) for _, item in input_df.iterrows()
     )
-    output_df = pd.concat(df_item, axis=0).fillna(0.0)
+    output_df = pd.DataFrame(item_list).fillna(0.0).set_index("itemid")
+    output_df = output_df.loc[output_df.index.drop_duplicates()]
+
+    # load lexicon and merge dataframes
+    lexicon = pd.read_pickle('data/lexicon.pkl')
+    output_df = pd.concat([lexicon, output_df], join='outer')
 
     # save dataframe to csv file
-    print("saving data to csv...")
-    output_df.to_csv("output.csv")'''
+    print("saving data as pickle...")
+    output_df.to_pickle("data/output.pkl")
     return
 
 
 if __name__ == "__main__":
-    '''i = 0
-    while True:
-        print("Iteration " + str(i))
-        i += 1
-        main()
-        time.sleep(60)'''
     main()
 
 
 ###TODO
 # load data in chunks to save memory
-# create dataframe from dictionary like so:
-# explicit = [maximum life, fire res, attack speed], values = [50, 20, 10]
-# dict = {mods=explicit,
-#           values=values}
-# df = pd.DataFrame(dict)
