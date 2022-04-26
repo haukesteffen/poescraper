@@ -1,0 +1,44 @@
+<html>
+    <head><title>poe price checker</title></head>
+<body>
+    <center>
+        <input type="button" id="btn" value="Estimate"/>
+        <div id="pasted"> Paste item anywhere </div>
+        <h1> Estimated price:</h1>
+        <div id="price">  </div>
+    </center>
+</body>
+</html>
+<script>
+    let text = document.getElementById('pasted')
+    let est = document.getElementById('price')
+
+    document.addEventListener('paste', e=>{
+        let data = (e.clipboardData || window.clipboardData).getData('text/plain');
+        text.innerHTML = data.replace(/\n/g, '<br>');
+    })
+    document.addEventListener('DOMContentLoaded', function(){
+        document.getElementById("btn").addEventListener("click", login);
+    });
+
+function login(){
+    var http = new XMLHttpRequest();
+    var url = "http://localhost:8081";
+    //var params = "aaaabbbbbcccccccccc"
+    let params = document.getElementById('pasted').innerHTML
+    let paramsEnc = btoa(params)
+    http.open("POST", url, true);
+    //http.open("GET", url, true);
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+        //if(http.readyState == 4) { // cors header todo
+            //alert(http.responseText);
+            est.innerHTML = http.responseText;
+        }
+    }
+    http.send(paramsEnc);
+    //http.send();
+}
+
+</script>
