@@ -2,6 +2,27 @@ import tensorflow as tf
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+template = """
+Item Class: Rings
+Rarity: Rare
+Damnation Eye
+Sapphire Ring
+--------
+Requirements:
+Level: 39
+--------
+Item Level: 71
+--------
++29% to Cold Resistance (implicit)
+--------
+Adds 5 to 10 Physical Damage to Attacks
++42 to Accuracy Rating
++66 to maximum Life
++21 to maximum Mana
++5% to all Elemental Resistances
++31% to Lightning Resistance
+"""
+
 df = (
     pd.read_csv("data/output.csv", index_col=0)
     .set_index("itemid")
