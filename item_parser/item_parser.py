@@ -34,7 +34,7 @@ def convert_rolls(input_string):
     if not str.split(input_string):
         return 1.0
     else:
-        return [np.mean([float(roll) for roll in str.split(input_string)])]
+        return np.mean([float(roll) for roll in str.split(input_string)])
         
 
 
