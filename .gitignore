@@ -30,3 +30,6 @@ poescraper
 # output.pkl
 data/output.pkl
 .DS_Store
+
+server.key
+server.crt
