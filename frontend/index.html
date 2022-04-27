@@ -23,22 +23,17 @@
 
 function login(){
     var http = new XMLHttpRequest();
-    var url = "http://localhost:8081";
-    //var params = "aaaabbbbbcccccccccc"
+    var url = "http://pricelearner:8081";
     let params = document.getElementById('pasted').innerHTML
     let paramsEnc = btoa(params)
     http.open("POST", url, true);
-    //http.open("GET", url, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.onreadystatechange = function() {
         if(http.readyState == 4 && http.status == 200) {
-        //if(http.readyState == 4) { // cors header todo
-            //alert(http.responseText);
             est.innerHTML = http.responseText;
         }
     }
     http.send(paramsEnc);
-    //http.send();
 }
 
 </script>
