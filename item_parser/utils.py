@@ -4,7 +4,7 @@ import numpy as np
 import os, re
 from sqlalchemy import create_engine
 from joblib import Parallel, delayed
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
 
 n_jobs = os.cpu_count()
@@ -124,10 +124,11 @@ def convert_input(item_paste):
             affix = strip_digits(line) + " (explicit)"
             value = strip_alpha(line)
             item_dict[affix] = convert_rolls(value)
-    item_dict['basetype'] = item_paste.split('\n')[4]
+    item_dict['basetype'] = item_paste.split('\n')[3]
     if 'Synthesised ' in item_dict["basetype"]:
         item_dict['basetype'] = item_dict['basetype'].replace('Synthesised ','')
     return item_dict
+
 
 def convert_dict_to_item_df(input_dict):
     lexicon = pd.read_pickle('data/lexicon.pkl')
@@ -181,24 +182,62 @@ def train_model(df, save_model=True):
         verbose=0,
         mode="auto",
         baseline=None,
-        restore_best_weights=False,
+        restore_best_weights=True,
     )
 
-    model = tf.keras.models.Sequential()
-    model.add(tf.keras.layers.Dense(500, activation="relu"))
-    model.add(tf.keras.layers.Dense(400, activation="relu"))
-    model.add(tf.keras.layers.Dense(300, activation="relu"))
-    model.add(tf.keras.layers.Dense(200, activation="relu"))
-    model.add(tf.keras.layers.Dense(100, activation="relu"))
-    model.add(tf.keras.layers.Dense(1))
-    model.compile(optimizer="adam", loss="mae")
-    model.fit(
-        X_train,
-        y_train,
-        epochs=200,
-        batch_size=32,
-        validation_data=(X_val, y_val),
-        callbacks=[early_stopping],
-    )
-    model.evaluate(X_test, y_test, verbose=2)
-    model.save("data/model.keras")
+    def create_model(n_neurons=300, n_layers=3):
+        model = tf.keras.models.Sequential()
+        for _ in range(n_layers):
+            model.add(tf.keras.layers.Dense(n_neurons, activation='relu'))
+        model.add(tf.keras.layers.Dense(1))
+        model.compile(optimizer="adam", loss="mae")
+        return model
+
+    '''model = tf.keras.wrappers.scikit_learn.KerasRegressor(build_fn=create_model, epochs=20, batch_size=32, validation_data=(X_val, y_val), callbacks=[early_stopping])
+    params = {
+        'n_neurons':[600],
+        'n_layers':[1, 2, 3],
+    }
+    random_search = RandomizedSearchCV(model, param_distributions=params, cv=3)
+    random_search_results = random_search.fit(X_train, y_train)
+    print(f'best score: {random_search_results.best_score_}')
+    print(f'best params: {random_search_results.best_params_}')'''
+
+    '''nns = [300, 400, 500]
+    nls = [2, 3, 4]
+    model_dict = {
+        'n_neurons':[],
+        'n_layers':[],
+        'loss':[],
+    }
+    for nn in nns:
+        for nl in nls:
+            model = create_model(n_neurons=nn, n_layers=nl)
+            model.fit(
+                X_train,
+                y_train,
+                epochs=200,
+                batch_size=32,
+                validation_data=(X_val, y_val),
+                callbacks=[early_stopping],
+            )
+            loss = model.evaluate(X_test, y_test, verbose=1)
+            model_dict['n_neurons'].append(nn)
+            model_dict['n_layers'].append(nl)
+            model_dict['loss'].append(loss)
+
+    print(model_dict)'''
+    #{'n_neurons': [200, 200, 200, 400, 400, 400, 600, 600, 600], 
+    # 'n_layers': [1, 3, 5, 1, 3, 5, 1, 3, 5], 
+    # 'loss': [22.695476531982422, 12.57523250579834, 10.627008438110352, 20.21051025390625, 8.998141288757324, 9.949676513671875, 20.923866271972656, 9.739904403686523, 15.194825172424316]}
+    
+    #{'n_neurons': [300, 300, 300, 400, 400, 400, 500, 500, 500], 
+    # 'n_layers': [2, 3, 4, 2, 3, 4, 2, 3, 4], 
+    # 'loss': [15.05650520324707, 11.52996826171875, 14.186291694641113, 14.572675704956055, 8.93062686920166, 9.00683879852295, 16.359643936157227, 10.516468048095703, 10.284761428833008]}
+    #model.save("data/model")
+
+    model = create_model(n_neurons=300, n_layers=4)
+    model.fit(X_train, y_train, epochs=200, batch_size=32, validation_data=(X_val, y_val), callbacks=[early_stopping])
+    test_loss = model.evaluate(X_test, y_test)
+    print(f'test loss with unseen data: {str(test_loss)}')
+    model.save("data/model")
