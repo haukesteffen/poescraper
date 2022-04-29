@@ -1,5 +1,7 @@
 <html>
-    <head><title>poe price checker</title></head>
+    <head>
+        <title>poe price checker</title>
+    </head>
 <body>
     <center>
         <input type="button" id="btn" value="Estimate"/>
@@ -23,9 +25,9 @@
 
 function login(){
     var http = new XMLHttpRequest();
-    var url = "http://pricelearner:8081";
+    var url = "/fetch"
     let params = document.getElementById('pasted').innerHTML
-    let paramsEnc = btoa(params)
+    let paramsEnc = btoa(params.replace(/<br>/g,"\n"))
     http.open("POST", url, true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     http.onreadystatechange = function() {
