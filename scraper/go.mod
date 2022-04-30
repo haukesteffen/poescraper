@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/haukesteffen/poescraper v0.0.0-20220429194940-14a4b3208134
+	github.com/haukesteffen/poescraper v0.0.0-20220430075937-2ba4da24bcdb
 	github.com/lib/pq v1.10.5
 )
 

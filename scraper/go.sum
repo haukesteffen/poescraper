@@ -1,8 +1,7 @@
 github.com/go-resty/resty/v2 v2.7.0 h1:me+K9p3uhSmXtrBZ4k9jcEAfJmuC8IivWHwaLZwPrFY=
 github.com/go-resty/resty/v2 v2.7.0/go.mod h1:9PWDzw47qPphMRFfhsyk0NnSgvluHcljSMVIq3w7q0I=
-github.com/haukesteffen/poescraper v0.0.0-20220429194940-14a4b3208134 h1:T2nzffhlvVMm9X4J40aEKHhEqip9+zWAyQBGJu/3p0w=
-github.com/haukesteffen/poescraper v0.0.0-20220429194940-14a4b3208134/go.mod h1:fFv5kLGUI4Dh81jAXAmhDtTsD3iS1U0tJjS3XcQgJdw=
-github.com/lib/pq v1.10.4/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
+github.com/haukesteffen/poescraper v0.0.0-20220430075937-2ba4da24bcdb h1:sTIb5xm5MucDSqFLu9y4rGpWm3XPvwLknZyhs9eDv0I=
+github.com/haukesteffen/poescraper v0.0.0-20220430075937-2ba4da24bcdb/go.mod h1:3xSJqAn21qMlOGy5+EeloMgBuCScFmZlKMC3Jbpa1kE=
 github.com/lib/pq v1.10.5 h1:J+gdV2cUmX7ZqL2B0lFcW0m+egaHC2V3lpO8nWxyYiQ=
 github.com/lib/pq v1.10.5/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 golang.org/x/net v0.0.0-20211029224645-99673261e6eb h1:pirldcYWx7rx7kE5r+9WsOXPXK0+WH5+uZ7uPmJ44uM=
