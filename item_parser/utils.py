@@ -95,18 +95,18 @@ def fetch():
     output_df = output_df.loc[output_df.index.drop_duplicates()]
 
     # load lexicon and merge dataframes
-    lexicon = pd.read_pickle("data/lexicon.pkl")
+    lexicon = pd.read_pickle("../assets/lexicon.pkl")
     output_df = pd.concat([lexicon, output_df], join="outer")
 
     # save dataframe to csv file
     print("saving data as pickle...")
-    output_df.to_pickle("data/output.pkl")
+    output_df.to_pickle("../assets/output.pkl")
     return
 
 
 def convert_input(item_paste):
     item_dict = {}
-    lexicon = pd.read_pickle('data/lexicon.pkl')
+    lexicon = pd.read_pickle('../assets/lexicon.pkl')
     for line in item_paste.split('\n'):
         if " (crafted)" in line:
             line = line.replace(' (crafted)','')
@@ -131,7 +131,7 @@ def convert_input(item_paste):
 
 
 def convert_dict_to_item_df(input_dict):
-    lexicon = pd.read_pickle('data/lexicon.pkl')
+    lexicon = pd.read_pickle('../assets/lexicon.pkl')
     input_df = pd.DataFrame(input_dict, index=[0])
     item_df = pd.concat([lexicon, input_df], join='outer')
     item_df.fillna(0.0, inplace=True)
@@ -142,7 +142,7 @@ def convert_dict_to_item_df(input_dict):
 
 
 def estimate_price(input_item_df):
-    model = tf.keras.models.load_model('data/model')
+    model = tf.keras.models.load_model('../assets/model')
     input_item_df.set_index('itemid', inplace=True)
     X = input_item_df.drop(columns=["basetype"]).astype(float).to_numpy()
     #y = input_item_df["price"].astype(float).to_numpy()
@@ -151,7 +151,7 @@ def estimate_price(input_item_df):
 
 def train_model(df, save_model=True):
     df = (
-        pd.read_pickle("data/output.pkl")
+        pd.read_pickle("../assets/output.pkl")
         .set_index("itemid")
         .drop(columns=["timestamp"])
     )
@@ -240,4 +240,4 @@ def train_model(df, save_model=True):
     model.fit(X_train, y_train, epochs=200, batch_size=32, validation_data=(X_val, y_val), callbacks=[early_stopping])
     test_loss = model.evaluate(X_test, y_test)
     print(f'test loss with unseen data: {str(test_loss)}')
-    model.save("data/model")
+    model.save("../assets/model")
