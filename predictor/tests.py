@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 
-import os
-import re
-import pandas as pd
-import numpy as np
-from sqlalchemy import create_engine
-from joblib import Parallel, delayed
 from utils import convert_input, convert_dict_to_item_df, estimate_price
-
 
 template = """Item Class: Rings
 Rarity: Rare
@@ -79,7 +72,7 @@ Synthesised Item
 
 
 def main():
-    dict = convert_input(template2)
+    dict = convert_input(template)
     df = convert_dict_to_item_df(dict)
     price = estimate_price(df)
     print(price[0][0])
