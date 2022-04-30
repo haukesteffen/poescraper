@@ -33,3 +33,4 @@ data/output.pkl
 
 server.key
 server.crt
+.ipynb
