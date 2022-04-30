@@ -34,3 +34,4 @@ predictor/assets/output.pkl
 server.key
 server.crt
 .ipynb
+vendor/
