@@ -55,8 +55,9 @@ func initDB() {
 }
 
 func itemToDB(item api.PoeItem) {
-	insertDynStmt := `INSERT INTO "items"("basetype", "rarity", "ilvl", "implicit", "explicit", "corrupted", "fracturedmods", "price", "itemid") values($1, $2, $3, $4, $5, $6, $7, $8, $9)`
-	rows, err := db.Query(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods), item.Note, item.ID)
+	insertDynStmt := `INSERT INTO "items"("basetype", "rarity", "ilvl", "implicit", "explicit", "corrupted", "fracturedmods", "price", "itemid", "itembase") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+	rows, err := db.Query(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods),
+		item.Note, item.ID, item.Extended.Subcategories[0])
 	if err != nil {
 		panic(err)
 	}

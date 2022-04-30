@@ -35,7 +35,8 @@ CREATE TABLE public.items (
     fracturedmods text[],
     price text,
     ts timestamp without time zone DEFAULT now(),
-    itemid text
+    itemid text,
+    itembase text
 );
 
 
