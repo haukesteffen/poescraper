@@ -4,7 +4,6 @@
     </head>
 <body>
     <center>
-        <input type="button" id="btn" value="Estimate"/>
         <div id="pasted"> Paste item anywhere </div>
         <h1> Estimated price:</h1>
         <div id="price">  </div>
@@ -18,10 +17,8 @@
     document.addEventListener('paste', e=>{
         let data = (e.clipboardData || window.clipboardData).getData('text/plain');
         text.innerHTML = data.replace(/\n/g, '<br>');
+        login();
     })
-    document.addEventListener('DOMContentLoaded', function(){
-        document.getElementById("btn").addEventListener("click", login);
-    });
 
 function login(){
     var http = new XMLHttpRequest();
