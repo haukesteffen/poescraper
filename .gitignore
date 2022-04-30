@@ -28,7 +28,7 @@ poescraper
 *.csv
 
 # output.pkl
-assets/output.pkl
+predictor/assets/output.pkl
 .DS_Store
 
 server.key

@@ -9,8 +9,7 @@ from joblib import Parallel, delayed
 from utils import convert_input, convert_dict_to_item_df, estimate_price
 
 
-template = """
-Item Class: Rings
+template = """Item Class: Rings
 Rarity: Rare
 Damnation Eye
 Sapphire Ring
@@ -30,8 +29,7 @@ Adds 5 to 10 Physical Damage to Attacks
 +31% to Lightning Resistance
 """
 
-template2= '''
-Item Class: Rings
+template2= '''Item Class: Rings
 Rarity: Rare
 Chimeric Knuckle
 Amethyst Ring
@@ -56,8 +54,7 @@ Your Scout Towers have 25% increased Range (enchant)
 Fractured Item
 '''
 
-template3 = '''
-Item Class: Belts
+template3 = '''Item Class: Belts
 Rarity: Rare
 Nemesis Shackle
 Synthesised Chain Belt
