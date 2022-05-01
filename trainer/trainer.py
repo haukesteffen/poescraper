@@ -7,7 +7,7 @@ def main():
     fetch(itembase=itembase, start_id=0)
     create_new_model(itembase=itembase)
 
-    for i in range(10):
+    while True:
         if fetch(itembase=itembase) is not 1:
             train_model(itembase=itembase)
         time.sleep(300)
