@@ -1,6 +1,6 @@
 FROM golang AS builder
 
-WORKDIR $GOPATH/src/github.com/haukesteffen/poescraper/
+WORKDIR $GOPATH/src/github.com/haukesteffen/poescraper/scraper/
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags "-w -extldflags -static -X main.GitCommit=$(git rev-parse HEAD) -X main.BuildTime=$(date -u --iso-8601=seconds)" -o /go/bin/poescraper
 
