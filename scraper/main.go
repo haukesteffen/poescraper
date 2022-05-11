@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/haukesteffen/poescraper/api"
 	"github.com/lib/pq"
 )
 
@@ -54,7 +53,7 @@ func initDB() {
 	}
 }
 
-func itemToDB(item api.PoeItem) {
+func itemToDB(item PoeItem) {
 	insertDynStmt := `INSERT INTO "items"("basetype", "rarity", "ilvl", "implicit", "explicit", "corrupted", "fracturedmods", "price", "itemid", "itembase") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 	rows, err := db.Query(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods),
 		item.Note, item.ID, item.Extended.Subcategories[0])
@@ -65,7 +64,7 @@ func itemToDB(item api.PoeItem) {
 }
 
 func fetchapi(client *resty.Client, change_id string) (string, float64) {
-	var dump api.Poe
+	var dump Poe
 	//var dump Tmp
 	resp, err := client.R().
 		SetResult(&dump).
@@ -100,7 +99,7 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 	}
 }
 
-func stashParser(stashes api.Poe) {
+func stashParser(stashes Poe) {
 	var subcat []string
 	for _, v := range stashes.Stashes {
 		if v.League == "Hardcore Archnemesis" {
