@@ -1,4 +1,4 @@
-package api
+package main
 
 type Poe struct {
 	NextChangeID string `json:"next_change_id"`
