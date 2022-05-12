@@ -131,9 +131,13 @@ def convert(input_df, itembase):
     # verify fetched data
     if len(output_df.columns) != len(lexicon.columns):
         print('lexicon does not match, maybe some new mods were found.')
-        print('updating lexicon...')
+        print('creating new lexicon...')
         create_lexicon(itembase=itembase)
-        print('created new lexicon. please retrain the model.')
+        print(f'created new lexicon. fetching {itembase} data...')
+        fetch(itembase=itembase, start_id=0)
+        print('fetched data. creating new model...')
+        create_new_model(itembase=itembase)
+        print('created new model...')
         return 1
         
     # save dataframe to csv file
