@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/doug-martin/goqu/v9/dialect/postgres"
 	"github.com/go-resty/resty/v2"
 	"github.com/lib/pq"
 )
@@ -53,10 +54,22 @@ func initDB() {
 	}
 }
 
-func itemToDB(item PoeItem) {
-	insertDynStmt := `INSERT INTO "items"("basetype", "rarity", "ilvl", "implicit", "explicit", "corrupted", "fracturedmods", "price", "itemid", "itembase") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
-	rows, err := db.Query(insertDynStmt, item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods), pq.Array(item.ExplicitMods), item.Corrupted, pq.Array(item.FracturedMods),
-		item.Note, item.ID, item.Extended.Subcategories[0])
+func stashToDB(singlestash PoeStash) {
+	insertDynStmt := `INSERT INTO "stash"("stashid","accountname","stash","league") values($1, $2, $3, $4)`
+	rows, err := db.Query(insertDynStmt, singlestash.ID, singlestash.AccountName, singlestash.Stash, singlestash.League)
+	if err != nil {
+		panic(err)
+	}
+	rows.Close()
+	stashParser(singlestash)
+}
+
+func itemToDB(item PoeItem, instashid string) {
+	insertDynStmt := `INSERT INTO "items"("instashid", "itemid", "itemclass", "basetype", "rarity", "ilvl", "implicitmods", "explicitmods", "fracturedmods",
+		"corrupted", "price") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+	rows, err := db.Query(insertDynStmt, instashid, item.ID, item.Extended.Subcategories[0], item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods),
+		pq.Array(item.ExplicitMods), pq.Array(item.FracturedMods), item.Corrupted, item.Note)
+
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +88,8 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 	}
 	respCode := resp.StatusCode()
 	if respCode == 200 {
-		go stashParser(dump)
+		//go stashParser(dump)
+		stashGetter(dump)
 		return dump.NextChangeID, float64(resp.Size()) / (1 << 20)
 	} else if respCode == 429 {
 		fmt.Println("Status Code:", respCode, "at", resp.ReceivedAt())
@@ -99,31 +113,38 @@ func fetchapi(client *resty.Client, change_id string) (string, float64) {
 	}
 }
 
-func stashParser(stashes Poe) {
+func stashGetter(apiresp Poe) {
+	for _, v := range apiresp.Stashes {
+		lg := v.League
+		if v.Public && lg != "Sentinel" && lg != "Standard" && lg != "Hardcore" {
+			stashToDB(v)
+		}
+	}
+}
+
+func stashParser(stash PoeStash) {
 	var subcat []string
-	for _, v := range stashes.Stashes {
-		if v.League == "Hardcore Archnemesis" {
-			for _, item := range v.Items {
-				// look at normal, magic and rare items
-				if item.FrameType > 0 && item.FrameType < 3 && item.Identified {
-					subcat = item.Extended.Subcategories
-					if len(subcat) > 0 {
-						if todb {
-							itemToDB(item)
-						} else {
-							//fmt.Printf("%+v", item)
-							fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
-							for _, imp := range item.ImplicitMods {
-								fmt.Println(imp)
-							}
-							fmt.Println("-----------------")
-							for _, aff := range item.ExplicitMods {
-								fmt.Println(aff)
-							}
-							fmt.Println("-----------------")
-							fmt.Printf("Price: %v\n", item.Note)
-							fmt.Println()
+	if stash.League == "Hardcore Sentinel" {
+		for _, item := range stash.Items {
+			// look at normal, magic and rare items
+			if item.FrameType > 0 && item.FrameType < 3 && item.Identified {
+				subcat = item.Extended.Subcategories
+				if len(subcat) > 0 {
+					if todb {
+						itemToDB(item, stash.ID)
+					} else {
+						//fmt.Printf("%+v", item)
+						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
+						for _, imp := range item.ImplicitMods {
+							fmt.Println(imp)
 						}
+						fmt.Println("-----------------")
+						for _, aff := range item.ExplicitMods {
+							fmt.Println(aff)
+						}
+						fmt.Println("-----------------")
+						fmt.Printf("Price: %v\n", item.Note)
+						fmt.Println()
 					}
 				}
 			}
@@ -138,7 +159,7 @@ func main() {
 	var err error
 	metadata_folder := "/data/"
 	last_change_id_file := metadata_folder + "last_change_id"
-	snooze := 3
+	snooze := 0.5
 	totalSize := 0.0
 	fmt.Println(GitCommit, BuildTime)
 	// todo

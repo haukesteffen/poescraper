@@ -1,17 +1,19 @@
 package main
 
 type Poe struct {
-	NextChangeID string `json:"next_change_id"`
-	Stashes      []struct {
-		ID                string    `json:"id"`
-		Public            bool      `json:"public"`
-		AccountName       string    `json:"accountName"`
-		LastCharacterName string    `json:"lastCharacterName"`
-		Stash             string    `json:"stash"`
-		StashType         string    `json:"stashType"`
-		League            string    `json:"league"`
-		Items             []PoeItem `json:"items"`
-	} `json:"stashes"`
+	NextChangeID string     `json:"next_change_id"`
+	Stashes      []PoeStash `json:"stashes"`
+}
+
+type PoeStash struct {
+	ID                string    `json:"id" db:"stashid"`
+	Public            bool      `json:"public"`
+	AccountName       string    `json:"accountName" db:"accountname"`
+	LastCharacterName string    `json:"lastCharacterName"`
+	Stash             string    `json:"stash" db:"stash"`
+	StashType         string    `json:"stashType"`
+	League            string    `json:"league" db:"league"`
+	Items             []PoeItem `json:"items"`
 }
 
 type PoeItem struct {

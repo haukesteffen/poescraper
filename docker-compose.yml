@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: poeitems
     volumes:
       - postgres:/data/postgres
-      - ./assets/poeitems.sql:/docker-entrypoint-initdb.d/poeitems.sql
+      - ./assets/pathofexile.sql:/docker-entrypoint-initdb.d/pathofexile.sql
 
   poescraper:
     image: jan104/poescraper

@@ -37,7 +37,8 @@ CREATE TABLE public.items (
     explicitmods text[],
     fracturedmods text[],
     corrupted boolean,
-    price text
+    price text,
+    stash_id integer REFERENCES stash(id);
 );
 
 

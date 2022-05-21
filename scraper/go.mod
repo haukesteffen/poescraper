@@ -3,8 +3,8 @@ module github.com/haukesteffen/poescraper/scraper
 go 1.18
 
 require (
+	github.com/doug-martin/goqu/v9 v9.18.0
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/haukesteffen/poescraper v0.0.0-20220430084636-b02d240cb762
 	github.com/lib/pq v1.10.5
 )
 
