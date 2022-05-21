@@ -55,21 +55,21 @@ func initDB() {
 }
 
 func stashToDB(singlestash PoeStash) {
-	insertDynStmt := `INSERT INTO "stash"("stashid","accountname","stash","league") values($1, $2, $3, $4)`
-	rows, err := db.Query(insertDynStmt, singlestash.ID, singlestash.AccountName, singlestash.Stash, singlestash.League)
-	if err != nil {
+	var id int
+	insertDynStmt := `INSERT INTO "stash"("stashid","accountname","stash","league") values($1, $2, $3, $4) RETURNING id`
+	row := db.QueryRow(insertDynStmt, singlestash.ID, singlestash.AccountName, singlestash.Stash, singlestash.League)
+	if err := row.Scan(&id); err != nil {
 		panic(err)
 	}
-	rows.Close()
-	stashParser(singlestash)
+	fmt.Println("new id of row:", id)
+	stashParser(singlestash, id)
 }
 
-func itemToDB(item PoeItem, instashid string) {
+func itemToDB(item PoeItem, instashid string, insertid int) {
 	insertDynStmt := `INSERT INTO "items"("instashid", "itemid", "itemclass", "basetype", "rarity", "ilvl", "implicitmods", "explicitmods", "fracturedmods",
-		"corrupted", "price") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+		"corrupted", "price", "stash_id") values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 	rows, err := db.Query(insertDynStmt, instashid, item.ID, item.Extended.Subcategories[0], item.BaseType, item.FrameType, item.Ilvl, pq.Array(item.ImplicitMods),
-		pq.Array(item.ExplicitMods), pq.Array(item.FracturedMods), item.Corrupted, item.Note)
-
+		pq.Array(item.ExplicitMods), pq.Array(item.FracturedMods), item.Corrupted, item.Note, insertid)
 	if err != nil {
 		panic(err)
 	}
@@ -122,7 +122,7 @@ func stashGetter(apiresp Poe) {
 	}
 }
 
-func stashParser(stash PoeStash) {
+func stashParser(stash PoeStash, insertid int) {
 	var subcat []string
 	if stash.League == "Hardcore Sentinel" {
 		for _, item := range stash.Items {
@@ -131,7 +131,7 @@ func stashParser(stash PoeStash) {
 				subcat = item.Extended.Subcategories
 				if len(subcat) > 0 {
 					if todb {
-						itemToDB(item, stash.ID)
+						itemToDB(item, stash.ID, insertid)
 					} else {
 						//fmt.Printf("%+v", item)
 						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
