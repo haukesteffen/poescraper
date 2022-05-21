@@ -61,7 +61,6 @@ func stashToDB(singlestash PoeStash) {
 	if err := row.Scan(&id); err != nil {
 		panic(err)
 	}
-	fmt.Println("new id of row:", id)
 	stashParser(singlestash, id)
 }
 
