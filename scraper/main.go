@@ -26,6 +26,10 @@ var rarity = map[int]string{
 	2: "Rare",
 }
 
+var trackedAccounts = []string{
+	"kjfdgkjldkjfkjlkf",
+}
+
 var db *sql.DB
 
 // todo
@@ -61,7 +65,7 @@ func stashToDB(singlestash PoeStash) {
 	if err := row.Scan(&id); err != nil {
 		panic(err)
 	}
-	stashParser(singlestash, id)
+	singleStashTraverser(singlestash, id)
 }
 
 func itemToDB(item PoeItem, instashid string, insertid int) {
@@ -121,30 +125,53 @@ func stashGetter(apiresp Poe) {
 	}
 }
 
-func stashParser(stash PoeStash, insertid int) {
+func accountIsTracked(lookup string) bool {
+	for _, val := range trackedAccounts {
+		if val == lookup {
+			return true
+		}
+	}
+	return false
+}
+
+func stashFilter(stash *PoeStash) bool {
+	if stash.League == "Hardcore Sentinel" || accountIsTracked(stash.AccountName) {
+		return true
+	}
+	return false
+}
+
+func itemFilter(item *PoeItem, fromStash *PoeStash) bool {
 	var subcat []string
-	if stash.League == "Hardcore Sentinel" {
+	// look at normal, magic and rare items
+	if item.FrameType > 0 && item.FrameType < 3 && item.Identified {
+		subcat = item.Extended.Subcategories
+		if len(subcat) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func singleStashTraverser(stash PoeStash, insertid int) {
+	if stashFilter(&stash) {
 		for _, item := range stash.Items {
-			// look at normal, magic and rare items
-			if item.FrameType > 0 && item.FrameType < 3 && item.Identified {
-				subcat = item.Extended.Subcategories
-				if len(subcat) > 0 {
-					if todb {
-						itemToDB(item, stash.ID, insertid)
-					} else {
-						//fmt.Printf("%+v", item)
-						fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
-						for _, imp := range item.ImplicitMods {
-							fmt.Println(imp)
-						}
-						fmt.Println("-----------------")
-						for _, aff := range item.ExplicitMods {
-							fmt.Println(aff)
-						}
-						fmt.Println("-----------------")
-						fmt.Printf("Price: %v\n", item.Note)
-						fmt.Println()
+			if itemFilter(&item, &stash) {
+				if todb {
+					itemToDB(item, stash.ID, insertid)
+				} else {
+					//fmt.Printf("%+v", item)
+					fmt.Printf("%v\nRarity: %v\niLvl: %v\n", item.BaseType, rarity[item.FrameType], item.Ilvl)
+					for _, imp := range item.ImplicitMods {
+						fmt.Println(imp)
 					}
+					fmt.Println("-----------------")
+					for _, aff := range item.ExplicitMods {
+						fmt.Println(aff)
+					}
+					fmt.Println("-----------------")
+					fmt.Printf("Price: %v\n", item.Note)
+					fmt.Println()
 				}
 			}
 		}
