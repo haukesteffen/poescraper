@@ -21,6 +21,43 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: stash; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.stash (
+    id integer NOT NULL,
+    ts timestamp without time zone DEFAULT now(),
+    stashid text,
+    accountname text,
+    stash text,
+    league text
+);
+
+ALTER TABLE public.stash OWNER TO postgres;
+
+--
+-- Name: stash_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.stash_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.stash_id_seq OWNER TO postgres;
+
+--
+-- Name: stash_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.stash_id_seq OWNED BY public.stash.id;
+
+
+--
 -- Name: items; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -38,7 +75,7 @@ CREATE TABLE public.items (
     fracturedmods text[],
     corrupted boolean,
     price text,
-    stash_id integer REFERENCES stash(id);
+    stash_id integer
 );
 
 
@@ -66,42 +103,7 @@ ALTER TABLE public.items_id_seq OWNER TO postgres;
 ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
 
 
---
--- Name: stash; Type: TABLE; Schema: public; Owner: postgres
---
 
-CREATE TABLE public.stash (
-    id integer NOT NULL,
-    ts timestamp without time zone DEFAULT now(),
-    stashid text,
-    accountname text,
-    stash text,
-    league text
-);
-
-
-ALTER TABLE public.stash OWNER TO postgres;
-
---
--- Name: stash_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.stash_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.stash_id_seq OWNER TO postgres;
-
---
--- Name: stash_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.stash_id_seq OWNED BY public.stash.id;
 
 
 --
