@@ -32,7 +32,6 @@ var trackedAccounts = []string{
 
 var db *sql.DB
 
-// todo
 var todb bool = true
 
 var url = "https://www.pathofexile.com/api/public-stash-tabs?id="
@@ -47,11 +46,11 @@ func dumpHeaders(resp *resty.Response) {
 	fmt.Println("---------------")
 }
 
-func initDB() {
+func initDB(c *Config) {
 	var err error
 	connStr := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		os.Getenv("DBHOST"), os.Getenv("DBPORT"), os.Getenv("DBUSER"), os.Getenv("DBPASSWORD"), os.Getenv("DBDBNAME"))
+		c.dbHost, c.dbPort, c.dbUser, c.dbPass, c.dbName)
 	db, err = sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
@@ -178,6 +177,58 @@ func singleStashTraverser(stash PoeStash, insertid int) {
 	}
 }
 
+type Config struct {
+	poeEmail string
+	dbHost   string
+	dbPort   string
+	dbName   string
+	dbUser   string
+	dbPass   string
+}
+
+func newConfig() *Config {
+	c := &Config{}
+	poeemail, poeemailOk := os.LookupEnv("POEEMAIL")
+	if !poeemailOk {
+		fmt.Fprintln(os.Stderr, "Set Email (POEEMAIL)")
+		os.Exit(1)
+	}
+	c.poeEmail = poeemail
+	if todb {
+		dbhost, dbhostOk := os.LookupEnv("DBHOST")
+		if !dbhostOk {
+			fmt.Fprintln(os.Stderr, "Set database host (DBHOST)")
+			os.Exit(1)
+		}
+		c.dbHost = dbhost
+		dbport, dbportOk := os.LookupEnv("DBPORT")
+		if !dbportOk {
+			fmt.Fprintln(os.Stderr, "Set database port (DBPORT)")
+			os.Exit(1)
+		}
+		c.dbPort = dbport
+		dbname, dbnameOk := os.LookupEnv("DBDBNAME")
+		if !dbnameOk {
+			fmt.Fprintln(os.Stderr, "Set database name (DBDBNAME)")
+			os.Exit(1)
+		}
+		c.dbName = dbname
+		dbuser, dbuserOk := os.LookupEnv("DBUSER")
+		if !dbuserOk {
+			fmt.Fprintln(os.Stderr, "Set database user (DBUSER)")
+			os.Exit(1)
+		}
+		c.dbUser = dbuser
+		dbpass, dbpassOk := os.LookupEnv("DBPASSWORD")
+		if !dbpassOk {
+			fmt.Fprintln(os.Stderr, "Set database password (DBPASS)")
+			os.Exit(1)
+		}
+		c.dbPass = dbpass
+	}
+	return c
+}
+
 func main() {
 	var file *os.File
 	var change_id string
@@ -188,7 +239,6 @@ func main() {
 	snooze := 0.5
 	totalSize := 0.0
 	fmt.Println(GitCommit, BuildTime)
-	// todo
 	if os.Getenv("TODB") != "" {
 		todb = false
 	}
@@ -208,13 +258,9 @@ func main() {
 	if len(os.Args) > 1 {
 		change_id = os.Args[1]
 	}
-	if os.Getenv("POEEMAIL") == "" {
-		fmt.Println("No Email (env: POEEMAIL) set.")
-		os.Exit(1)
-	}
-	// todo better checks
-	if os.Getenv("DBHOST") != "" && todb {
-		initDB()
+	c := newConfig()
+	if todb {
+		initDB(c)
 	}
 	client := resty.New()
 	fmt.Println("Starting at", change_id)
