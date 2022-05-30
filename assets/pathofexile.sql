@@ -189,34 +189,6 @@ ALTER TABLE ONLY public.items
 
 
 --
--- Name: TABLE stash; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.stash TO poeuser;
-
-
---
--- Name: TABLE items; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.items TO poeuser;
-
-
---
--- Name: SEQUENCE items_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT,USAGE ON SEQUENCE public.items_id_seq TO poeuser;
-
-
---
--- Name: SEQUENCE stash_id_seq; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT,USAGE ON SEQUENCE public.stash_id_seq TO poeuser;
-
-
---
 -- PostgreSQL database dump complete
 --
 
