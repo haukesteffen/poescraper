@@ -178,12 +178,13 @@ func singleStashTraverser(stash PoeStash, insertid int) {
 }
 
 type Config struct {
-	poeEmail string
-	dbHost   string
-	dbPort   string
-	dbName   string
-	dbUser   string
-	dbPass   string
+	poeEmail  string
+	dbHost    string
+	dbPort    string
+	dbName    string
+	dbUser    string
+	dbPass    string
+	change_id string
 }
 
 func newConfig() *Config {
@@ -194,6 +195,12 @@ func newConfig() *Config {
 		os.Exit(1)
 	}
 	c.poeEmail = poeemail
+	change_id, change_idOk := os.LookupEnv("CHANGEID")
+	if change_idOk {
+		c.change_id = change_id
+	} else {
+		c.change_id = ""
+	}
 	if todb {
 		dbhost, dbhostOk := os.LookupEnv("DBHOST")
 		if !dbhostOk {
@@ -226,6 +233,7 @@ func newConfig() *Config {
 		}
 		c.dbPass = dbpass
 	}
+	fmt.Println("Env OK")
 	return c
 }
 
@@ -241,7 +249,9 @@ func main() {
 	fmt.Println(GitCommit, BuildTime)
 	if os.Getenv("TODB") != "" {
 		todb = false
+		fmt.Println("Not writing to db")
 	}
+	c := newConfig()
 	file, err = os.OpenFile(last_change_id_file, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		fmt.Println(last_change_id_file, "nicht gefunden und/oder konnte nicht erstellt werden.")
@@ -252,21 +262,19 @@ func main() {
 	if err = scanner.Err(); err != nil {
 		panic(err)
 	}
+	// use default if no change_id found in file...
 	if change_id == "" {
 		change_id = "1501732181-1505111483-1455524163-1618378957-1564141224"
 	}
-	if len(os.Args) > 1 {
-		change_id = os.Args[1]
+	// ... but always use given change_id, if it was set via env variable (CHANGEID)
+	if c.change_id != "" {
+		change_id = c.change_id
 	}
-	c := newConfig()
 	if todb {
 		initDB(c)
 	}
 	client := resty.New()
 	fmt.Println("Starting at", change_id)
-	if !todb {
-		fmt.Println("Not writing to db")
-	}
 	for {
 		change_id, size = fetchapi(client, change_id)
 		totalSize += size
