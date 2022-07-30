@@ -244,7 +244,7 @@ func main() {
 	var err error
 	metadata_folder := "/data/"
 	last_change_id_file := metadata_folder + "last_change_id"
-	snooze := 0.5
+	snooze := 2
 	totalSize := 0.0
 	fmt.Println(GitCommit, BuildTime)
 	if os.Getenv("TODB") != "" {
